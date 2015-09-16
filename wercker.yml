@@ -7,6 +7,7 @@ build:
         code: |
           sudo pip install coverage
           sudo pip install pep8
+          sudo pip install http://sourceforge.net/projects/pychecker/files/pychecker/0.8.19/pychecker-0.8.19.tar.gz/download
     - script:
         name: pep8
         code: |
@@ -16,3 +17,7 @@ build:
         code: |
           coverage run --timid --source=. -m unittest discover -v
           coverage report -m --omit=*/tests/*,setup*
+    - script:
+        name: pychecker
+        code: |
+          find ./robeep -name "*.py" | xargs pychecker

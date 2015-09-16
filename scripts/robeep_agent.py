@@ -1,5 +1,3 @@
-# !/usr/bin/env python
-
 import sys
 
 from robeep.core.daemon import Daemon

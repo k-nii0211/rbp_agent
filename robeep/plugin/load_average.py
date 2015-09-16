@@ -1,8 +1,5 @@
 import os
-import logging
 import subprocess
-
-_logger = logging.getLogger(__name__)
 
 
 class LoadAverageMetrics(object):
