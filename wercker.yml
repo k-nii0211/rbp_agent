@@ -7,7 +7,6 @@ build:
         code: |
           sudo pip install coverage
           sudo pip install pep8
-    - pip-install
     - script:
         name: pep8
         code: |
