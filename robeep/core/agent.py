@@ -6,6 +6,7 @@ from robeep.core.data_source_wrapper import DataSourceWrapper
 
 _logger = logging.getLogger(__name__)
 
+
 class Agent(object):
     _instance = None
     _instance_lock = threading.Lock()
@@ -60,11 +61,14 @@ class Agent(object):
                     _logger.info(data_source.metrics())
             time.sleep(3)
 
+
 def get_instance():
     return Agent.get_instance()
 
+
 def activate():
     return Agent.get_instance().activate()
+
 
 def shutdown():
     # FIXME:

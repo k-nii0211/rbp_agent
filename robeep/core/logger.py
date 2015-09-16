@@ -13,7 +13,7 @@ _LOG_FORMAT = '%(asctime)s (%(process)d/%(threadName)s) ' \
               '[%(levelname)s] %(name)s - %(message)s'
 
 
-def initialize(log_file, log_level = logging.INFO):
+def initialize(log_file, log_level=logging.INFO):
     with _lock:
         handler = None
         if log_file == 'stdout':

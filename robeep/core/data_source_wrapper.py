@@ -2,8 +2,8 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-class DataSourceWrapper(object):
 
+class DataSourceWrapper(object):
     def __init__(self, source, name, **settings):
         self.instance = source()
         self.name = name

@@ -12,6 +12,7 @@ _logger = logging.getLogger(__name__)
 
 _config = ConfigParser.SafeConfigParser()
 
+
 def _log_level_mapper(level):
     log_level = {
         'CRITICAL': logging.CRITICAL,
@@ -22,11 +23,13 @@ def _log_level_mapper(level):
     }
     return log_level[level.upper()]
 
+
 _data_sources = []
+
 
 def _load_data_sources():
     agent_config = dict(_config.items('robeep'))
-    if agent_config.has_key('interval'):
+    if agent_config in 'interval':
         default_interval = agent_config['interval']
     else:
         default_interval = 60
@@ -40,7 +43,7 @@ def _load_data_sources():
             function = _config.get(section, 'function')
             (module, object_path) = function.split(':', 1)
 
-            if not _config.has_option(section, 'interval'):
+            if _config.has_option(section, 'interval') is False:
                 _config.set(section, 'interval', default_interval)
 
             settings = {}
@@ -49,9 +52,11 @@ def _load_data_sources():
             settings.pop('name', None)
             settings.pop('function', None)
 
-            _data_sources.append((section, module, object_path, name, settings))
+            _data_sources.append(
+                (section, module, object_path, name, settings))
         except Exception as e:
             _logger.exception('Attempt to load data source. %r' % e)
+
 
 def _register_data_sources():
     agent = robeep.core.agent.get_instance()
@@ -63,7 +68,7 @@ def _register_data_sources():
             _logger.exception('Attempted to register data source %r' % e)
 
 
-def initialize(config_file = None):
+def initialize(config_file=None):
     if config_file is None:
         raise robeep.core.exceptions.ConfigurationError(
             'No configuration file.')
@@ -78,6 +83,7 @@ def initialize(config_file = None):
     robeep.core.logger.initialize(log_file, log_level)
 
     _logger.debug('Agent configuration file was %s' % config_file)
+
 
 def setup_data_source():
     _load_data_sources()

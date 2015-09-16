@@ -1,5 +1,6 @@
 import subprocess
 
+
 class DiskUsageMetrics(object):
     def __call__(self):
         p = subprocess.Popen(['df', '-Pk'],
@@ -21,5 +22,6 @@ class DiskUsageMetrics(object):
                 'used_p': used_percentage,
             }
         return values
+
 
 disk_usage_metrics = DiskUsageMetrics

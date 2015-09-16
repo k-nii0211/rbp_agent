@@ -12,8 +12,8 @@ import robeep.core.agent
 
 _logger = logging.getLogger(__name__)
 
-class Daemon(object):
 
+class Daemon(object):
     def __init__(self, pidfile):
         self.pidfile = pidfile
         robeep.core.settings.initialize(
