@@ -47,12 +47,9 @@ class Agent(object):
         self._data_collector_thread.start()
 
     def _start_data_record(self):
-        _logger.debug('Starting data source record')
         with self._data_source_lock:
             for data_source in self._data_sources:
-                _logger.info('data source start %s' % data_source.name)
                 data_source.start()
-                _logger.info('blocking?')
 
     def shutdown(self):
         self._agent_shutdown = True
@@ -64,8 +61,10 @@ class Agent(object):
             return
 
         while not self._agent_shutdown:
-            _logger.debug('running...')
-            time.sleep(10)
+            time.sleep(30)
+            with self._data_source_lock:
+                for data_source in self._data_sources:
+                    _logger.info(data_source.record_data)
 
 
 def get_instance():

@@ -1,6 +1,6 @@
 import logging
-
-from threading import Timer
+import time
+import threading
 
 _logger = logging.getLogger(__name__)
 
@@ -11,6 +11,8 @@ class DataSourceWrapper(object):
         self._name = name
         self._settings = dict(settings)
         self._interval = int(self._settings['interval'])
+        self._record_data = []
+        self._record_data_lock = threading.Lock()
 
         if self._instance is None:
             _logger.warning('Failed to create instance of data source %r'
@@ -20,11 +22,23 @@ class DataSourceWrapper(object):
     def name(self):
         return self._name
 
+    @property
+    def record_data(self):
+        with self._record_data_lock:
+            values = list(self._record_data)
+            self._record_data = []
+        return values
+
     def start(self):
         _logger.info('Starting data source (%s)' % self._name)
-        Timer(self._interval, self._metrics, ()).start()
+        threading.Timer(self._interval, self._record, ()).start()
 
-    def _metrics(self):
-        values = self._instance()
-        _logger.info(values)
-        Timer(self._interval, self._metrics, ()).start()
+    def _record(self):
+        record_data = {
+            'time': time.time(),
+            'values': self._instance()
+        }
+        threading.Timer(self._interval, self._record, ()).start()
+
+        with self._record_data_lock:
+            self._record_data.append(record_data)
