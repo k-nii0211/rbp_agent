@@ -1,0 +1,19 @@
+box: wercker/python
+
+build:
+  steps:
+    - script:
+        name: install test libs
+        code: |
+          sudo pip install coverage
+          sudo pip install pep8
+    - pip-install
+    - script:
+        name: pep8
+        code: |
+          pep8 .
+    - script:
+        name: coverage report
+        code: |
+          coverage run --timid --source=. -m unittest discover -v
+          coverage report -m --omit=*/tests/*,setup*
