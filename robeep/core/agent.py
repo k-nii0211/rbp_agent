@@ -35,15 +35,24 @@ class Agent(object):
         with self._data_source_lock:
             self._data_sources.append(
                 DataSourceWrapper(source, name, **settings))
-        _logger.debug('Register data source with agent %r.' %
-                      ((source, name, settings),))
+            _logger.debug('Register data source with agent %r.' %
+                          ((source, name, settings),))
 
     def activate(self):
         if self._agent_shutdown:
             return
         if self._active:
             return
+        self._start_data_record()
         self._data_collector_thread.start()
+
+    def _start_data_record(self):
+        _logger.debug('Starting data source record')
+        with self._data_source_lock:
+            for data_source in self._data_sources:
+                _logger.info('data source start %s' % data_source.name)
+                data_source.start()
+                _logger.info('blocking?')
 
     def shutdown(self):
         self._agent_shutdown = True
@@ -56,10 +65,7 @@ class Agent(object):
 
         while not self._agent_shutdown:
             _logger.debug('running...')
-            with self._data_source_lock:
-                for data_source in self._data_sources:
-                    _logger.info(data_source.metrics())
-            time.sleep(3)
+            time.sleep(10)
 
 
 def get_instance():

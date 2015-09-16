@@ -27,13 +27,15 @@ def _log_level_mapper(level):
 _data_sources = []
 
 
-def _load_data_sources():
+def _default_interval():
     agent_config = dict(_config.items('robeep'))
-    if agent_config in 'interval':
-        default_interval = agent_config['interval']
+    if 'interval' in agent_config:
+        return agent_config['interval']
     else:
-        default_interval = 60
+        return 60
 
+
+def _load_data_sources():
     for section in _config.sections():
         if not section.startswith('data_source:'):
             continue
@@ -44,7 +46,7 @@ def _load_data_sources():
             (module, object_path) = function.split(':', 1)
 
             if _config.has_option(section, 'interval') is False:
-                _config.set(section, 'interval', default_interval)
+                _config.set(section, 'interval', _default_interval())
 
             settings = {}
             settings.update(_config.items(section))
