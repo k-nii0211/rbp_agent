@@ -11,7 +11,7 @@ build:
     - script:
         name: pep8
         code: |
-          pep8 .
+          pep8 -v .
     - script:
         name: coverage report
         code: |
