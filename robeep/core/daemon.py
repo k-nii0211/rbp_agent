@@ -29,7 +29,7 @@ class Daemon(object):
         robeep.core.settings.initialize(
             os.environ.get('ROBEEP_AGENT_CONFIG_FILE', None))
 
-    def daemonize(self):
+    def _daemonize(self):
         try:
             pid = os.fork()
             if pid > 0:
@@ -60,12 +60,12 @@ class Daemon(object):
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
 
-        atexit.register(self.delete_pid)
+        atexit.register(self._delete_pid)
 
         with open(self.pidfile, 'w+') as f:
             f.write(str(os.getpid()))
 
-    def delete_pid(self):
+    def _delete_pid(self):
         os.remove(self.pidfile)
 
     def start(self):
@@ -81,7 +81,7 @@ class Daemon(object):
                           ' Daemon already running?' % self.pidfile)
             sys.exit(1)
 
-        self.daemonize()
+        self._daemonize()
         robeep.core.settings.setup_data_source()
         robeep.core.agent.activate()
 
@@ -98,7 +98,7 @@ class Daemon(object):
             return
 
         try:
-            while 1:
+            while True:
                 # robeep.core.agent.shutdown()
                 os.kill(pid, signal.SIGTERM)
                 time.sleep(3)

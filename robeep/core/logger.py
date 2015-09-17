@@ -26,5 +26,4 @@ def initialize(log_file, log_level=logging.INFO):
         handler.setFormatter(logging.Formatter(_LOG_FORMAT))
         _logger.addHandler(handler)
         _logger.setLevel(log_level)
-        _logger.debug('Initialize logger (level:%s, %s)' %
-                      (log_level, log_file))
+        _logger.debug('Initialize logger (%s)' % log_file)

@@ -5,7 +5,7 @@ import threading
 _logger = logging.getLogger(__name__)
 
 
-class DataRecorder(object):
+class DataCollector(object):
     def __init__(self, source, name, **settings):
         self._instance = source()
         self._name = ''.join(name.split())
@@ -13,6 +13,7 @@ class DataRecorder(object):
         self._interval = int(self._settings['interval'])
         self._record_data = []
         self._record_data_lock = threading.Lock()
+        self._record_shutdown = threading.Event()
 
         if self._instance is None:
             _logger.warning('Failed to create instance of data source %r'
@@ -29,8 +30,11 @@ class DataRecorder(object):
         return values
 
     def start(self):
-        _logger.info('Starting data source (%s)' % self._name)
+        _logger.debug('Starting data source (%s)' % self._name)
         self._start_timer()
+
+    def stop(self):
+        self._record_shutdown.set()
 
     def _record(self):
         values = []
@@ -49,6 +53,10 @@ class DataRecorder(object):
             self._record_data.append(record_data)
 
     def _start_timer(self, interval=None):
+        if self._record_shutdown.isSet():
+            _logger.debug('%s collector shutdown' % self._name)
+            return
+
         if interval is None:
             interval = self._interval
         if interval < 0:

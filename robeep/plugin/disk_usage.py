@@ -2,6 +2,9 @@ import subprocess
 
 
 class DiskUsageMetrics(object):
+    def __init__(self, ignore_list=list()):
+        self._ignore_list = ignore_list
+
     def __call__(self):
         p = subprocess.Popen(['df', '-Pk'],
                              stdout=subprocess.PIPE,
@@ -16,6 +19,9 @@ class DiskUsageMetrics(object):
             used_percentage = element[-2].strip('%')
             available = element[-3]
             used = element[-4]
+            if mount in self._ignore_list:
+                continue
+
             values[mount] = {
                 'used': used,
                 'available': available,
