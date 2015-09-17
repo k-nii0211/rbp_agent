@@ -14,8 +14,18 @@ _logger = logging.getLogger(__name__)
 
 
 class Daemon(object):
-    def __init__(self, pidfile):
-        self.pidfile = pidfile
+    @staticmethod
+    def _get_pidfile():
+        app = sys.argv[0].split('/')[-1]
+        for pidfile in ['%s/%s.pid' % (os.getcwd(), app),
+                        '/var/run/%s.pid' % app,
+                        '/tmp/%s.pid' % app]:
+            if os.access(os.path.dirname(pidfile), os.W_OK):
+                return pidfile
+        raise OSError('Could not find appropriate place for pidfile. %s' % app)
+
+    def __init__(self):
+        self.pidfile = Daemon._get_pidfile()
         robeep.core.settings.initialize(
             os.environ.get('ROBEEP_AGENT_CONFIG_FILE', None))
 
@@ -52,9 +62,8 @@ class Daemon(object):
 
         atexit.register(self.delete_pid)
 
-        pid = str(os.getpid())
         with open(self.pidfile, 'w+') as f:
-            f.write(pid + '\n')
+            f.write(str(os.getpid()))
 
     def delete_pid(self):
         os.remove(self.pidfile)

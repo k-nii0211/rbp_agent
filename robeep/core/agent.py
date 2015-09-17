@@ -2,7 +2,7 @@ import logging
 import threading
 import time
 
-from robeep.core.data_source_wrapper import DataSourceWrapper
+from robeep.core.data_recorder import DataRecorder
 
 _logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class Agent(object):
     def register_data_source(self, source, name=None, **settings):
         with self._data_source_lock:
             self._data_sources.append(
-                DataSourceWrapper(source, name, **settings))
+                DataRecorder(source, name, **settings))
             _logger.debug('Register data source with agent %r.' %
                           ((source, name, settings),))
 
@@ -64,7 +64,7 @@ class Agent(object):
             time.sleep(30)
             with self._data_source_lock:
                 for data_source in self._data_sources:
-                    _logger.info(data_source.record_data)
+                    _logger.info(data_source.pop_record_data())
 
 
 def get_instance():

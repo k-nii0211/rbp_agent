@@ -5,10 +5,10 @@ import threading
 _logger = logging.getLogger(__name__)
 
 
-class DataSourceWrapper(object):
+class DataRecorder(object):
     def __init__(self, source, name, **settings):
         self._instance = source()
-        self._name = name
+        self._name = ''.join(name.split())
         self._settings = dict(settings)
         self._interval = int(self._settings['interval'])
         self._record_data = []
@@ -22,8 +22,7 @@ class DataSourceWrapper(object):
     def name(self):
         return self._name
 
-    @property
-    def record_data(self):
+    def pop_record_data(self):
         with self._record_data_lock:
             values = list(self._record_data)
             self._record_data = []
@@ -31,14 +30,30 @@ class DataSourceWrapper(object):
 
     def start(self):
         _logger.info('Starting data source (%s)' % self._name)
-        threading.Timer(self._interval, self._record, ()).start()
+        self._start_timer()
 
     def _record(self):
+        values = []
+        start_time = time.time()
+        if self._instance is not None:
+            values = self._instance()
+        elapsed_time = time.time() - start_time
         record_data = {
-            'time': time.time(),
-            'values': self._instance()
+            'time': start_time,
+            'values': values,
         }
-        threading.Timer(self._interval, self._record, ()).start()
+        interval = self._interval - elapsed_time
+        self._start_timer(interval)
 
         with self._record_data_lock:
             self._record_data.append(record_data)
+
+    def _start_timer(self, interval=None):
+        if interval is None:
+            interval = self._interval
+        if interval < 0:
+            interval = 0
+
+        timer = threading.Timer(interval, self._record, ())
+        timer.setName('DataRecorder:%s' % self.name)
+        timer.start()
