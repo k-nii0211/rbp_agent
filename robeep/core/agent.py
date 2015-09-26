@@ -3,7 +3,7 @@ import threading
 import time
 import atexit
 
-from robeep.core.data_collector import DataCollector
+from .data_collector import DataCollector
 
 _logger = logging.getLogger(__name__)
 

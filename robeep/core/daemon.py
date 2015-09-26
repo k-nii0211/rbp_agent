@@ -7,8 +7,8 @@ import atexit
 import logging
 import signal
 
-import robeep.core.settings
-import robeep.core.agent
+from . import settings as _settings
+from . import agent as _agent
 
 _logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class Daemon(object):
 
     def __init__(self):
         self.pidfile = Daemon._get_pidfile()
-        robeep.core.settings.initialize(
+        _settings.initialize(
             os.environ.get('ROBEEP_AGENT_CONFIG_FILE', None))
 
     def _daemonize(self):
@@ -82,8 +82,8 @@ class Daemon(object):
             sys.exit(1)
 
         self._daemonize()
-        robeep.core.settings.setup_data_source()
-        robeep.core.agent.activate()
+        _settings.setup_data_source()
+        _agent.activate()
 
     def stop(self):
         try:

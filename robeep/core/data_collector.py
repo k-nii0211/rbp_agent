@@ -2,6 +2,8 @@ import logging
 import time
 import threading
 
+from .client import Client
+
 _logger = logging.getLogger(__name__)
 
 
@@ -14,6 +16,7 @@ class DataCollector(object):
         self._record_data = []
         self._record_data_lock = threading.Lock()
         self._record_shutdown = threading.Event()
+        self._client = Client()
 
         if self._instance is None:
             _logger.warning('Failed to create instance of data source %r'
@@ -22,6 +25,14 @@ class DataCollector(object):
     @property
     def name(self):
         return self._name
+
+    def send_metric_data(self):
+        payload = self.pop_record_data()
+        return self._client.send_request(payload=payload)
+
+    #
+    # def close_connection(self):
+    #     self._requests_session = None
 
     def pop_record_data(self):
         with self._record_data_lock:

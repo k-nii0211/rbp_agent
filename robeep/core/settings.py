@@ -3,9 +3,11 @@ import ConfigParser
 
 from importlib import import_module
 
-import robeep.core.logger
-import robeep.core.exceptions
-import robeep.core.agent
+from .logger import initialize as _logger_initialize
+from .exceptions import ConfigurationError
+from . import agent as _agent
+
+from ..packages import yaml
 
 __all__ = ['initialize', 'setup_data_source']
 
@@ -62,7 +64,7 @@ def _load_data_sources():
 
 
 def _register_data_sources():
-    agent = robeep.core.agent.get_instance()
+    agent = _agent.get_instance()
     for section, module, object_path, name, settings in _data_sources:
         try:
             source = getattr(import_module(module), object_path)
@@ -73,17 +75,15 @@ def _register_data_sources():
 
 def initialize(config_file=None):
     if config_file is None:
-        raise robeep.core.exceptions.ConfigurationError(
-            'No configuration file.')
+        raise ConfigurationError('No configuration file.')
 
     if not _config.read([config_file]):
-        raise robeep.core.exceptions.ConfigurationError(
-            'Unable to read config file %s' % config_file)
+        raise ConfigurationError('Unable to read config file %s' % config_file)
 
     robeep_config = dict(_config.items('robeep'))
     log_file = robeep_config['log_file']
     log_level = _log_level_mapper(robeep_config['log_level'])
-    robeep.core.logger.initialize(log_file, log_level)
+    _logger_initialize(log_file, log_level)
 
     _logger.debug('Agent configuration file was %s' % config_file)
 

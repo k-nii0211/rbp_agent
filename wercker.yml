@@ -20,4 +20,4 @@ build:
     - script:
         name: pychecker
         code: |
-          find ./robeep -name "*.py" | xargs pychecker
+          find . -name "*.py" ! -path "./robeep/packages/*" | xargs pychecker

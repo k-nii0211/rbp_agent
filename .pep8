@@ -1,0 +1,4 @@
+[pep8]
+max-line-length = 80
+
+exclude=./robeep/packages
