@@ -7,8 +7,8 @@ import atexit
 import logging
 import signal
 
-from . import settings as _settings
-from . import agent as _agent
+from robeep.core import settings as _settings
+from robeep.core import agent as _agent
 
 _logger = logging.getLogger(__name__)
 

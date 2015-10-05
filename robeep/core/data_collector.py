@@ -1,8 +1,7 @@
 import logging
 import time
+import datetime
 import threading
-
-from .client import Client
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +15,6 @@ class DataCollector(object):
         self._record_data = []
         self._record_data_lock = threading.Lock()
         self._record_shutdown = threading.Event()
-        self._client = Client()
 
         if self._instance is None:
             _logger.warning('Failed to create instance of data source %r'
@@ -25,14 +23,6 @@ class DataCollector(object):
     @property
     def name(self):
         return self._name
-
-    def send_metric_data(self):
-        payload = self.pop_record_data()
-        return self._client.send_request(payload=payload)
-
-    #
-    # def close_connection(self):
-    #     self._requests_session = None
 
     def pop_record_data(self):
         with self._record_data_lock:
@@ -50,16 +40,25 @@ class DataCollector(object):
     def _record(self):
         values = []
         start_time = time.time()
+
         if self._instance is not None:
             values = self._instance()
+        now = "%sZ" % datetime.datetime.utcnow().isoformat()
+
         elapsed_time = time.time() - start_time
-        record_data = {
-            'time': start_time,
-            'values': values,
-        }
+        _logger.debug('collect %s took %f ms' % (self._name, elapsed_time*1000))
+
         interval = self._interval - elapsed_time
+        if interval < 0:
+            _logger.warn('collect %s took %f ms' %
+                         (self._name, elapsed_time*1000))
+
         self._start_timer(interval)
 
+        record_data = {
+            'time': now,
+            'record': values,
+        }
         with self._record_data_lock:
             self._record_data.append(record_data)
 

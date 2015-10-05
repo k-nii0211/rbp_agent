@@ -1,4 +1,4 @@
-import subprocess
+from robeep.packages import psutil
 
 
 class DiskUsageMetrics(object):
@@ -6,28 +6,21 @@ class DiskUsageMetrics(object):
         self._ignore_list = ignore_list
 
     def __call__(self):
-        p = subprocess.Popen(['df', '-Pk'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
-        lines = stdout.splitlines()[1:]
+        total = 0
+        used = 0
+        free = 0
+        for partition in psutil.disk_partitions():
+            mountpoint = partition.mountpoint
+            usage = psutil.disk_usage(mountpoint)
+            total += usage.total
+            used += usage.used
+            free += usage.free
 
-        values = {}
-        for line in lines:
-            element = line.split()
-            mount = element[-1]
-            used_percentage = element[-2].strip('%')
-            available = element[-3]
-            used = element[-4]
-            if mount in self._ignore_list:
-                continue
-
-            values[mount] = {
-                'used': used,
-                'available': available,
-                'used_p': used_percentage,
-            }
-        return values
+        return {
+            'total': total,
+            'used': used,
+            'free': free,
+        }
 
 
 disk_usage_metrics = DiskUsageMetrics

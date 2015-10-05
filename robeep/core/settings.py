@@ -3,11 +3,10 @@ import ConfigParser
 
 from importlib import import_module
 
-from .logger import initialize as _logger_initialize
-from .exceptions import ConfigurationError
-from . import agent as _agent
-
-from ..packages import yaml
+from robeep.core.logger import initialize as _logger_initialize
+from robeep.core.exceptions import ConfigurationError
+from robeep.core import agent as _agent
+from robeep.core import config
 
 __all__ = ['initialize', 'setup_data_source']
 
@@ -81,9 +80,15 @@ def initialize(config_file=None):
         raise ConfigurationError('Unable to read config file %s' % config_file)
 
     robeep_config = dict(_config.items('robeep'))
+
     log_file = robeep_config['log_file']
     log_level = _log_level_mapper(robeep_config['log_level'])
     _logger_initialize(log_file, log_level)
+
+    global_config = config.global_config()
+
+    for key, value in robeep_config.iteritems():
+        global_config.robeep[key] = value
 
     _logger.debug('Agent configuration file was %s' % config_file)
 
