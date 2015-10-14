@@ -17,7 +17,7 @@ build:
         code: |
           coverage run --timid --source=. -m unittest discover -v
           coverage report -m --omit=*/tests/*,setup*
-    - script:
-        name: pychecker
-        code: |
-          find . -name "*.py" ! -path "./robeep/packages/*" | xargs pychecker
+#    - script:
+#        name: pychecker
+#        code: |
+#          find . -name "*.py" ! -path "./robeep/packages/*" | xargs pychecker
