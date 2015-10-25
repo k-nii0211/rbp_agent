@@ -1,7 +1,7 @@
 import os
 
 
-class LoadAverageMetrics(object):
+class MetricsLoadAverage(object):
     def __call__(self):
         values = os.getloadavg()
         return {'1m': round(values[0], 2),
@@ -10,4 +10,4 @@ class LoadAverageMetrics(object):
                 }
 
 
-load_average_metrics = LoadAverageMetrics
+metrics_load_average = MetricsLoadAverage

@@ -47,7 +47,7 @@ def _load_data_sources():
             function = _config.get(section, 'function')
             (module, object_path) = function.split(':', 1)
 
-            if _config.has_option(section, 'interval') is False:
+            if not _config.has_option(section, 'interval'):
                 _config.set(section, 'interval', _default_interval())
 
             settings = {}

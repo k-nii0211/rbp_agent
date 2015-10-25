@@ -50,9 +50,11 @@ class Agent(object):
             ssl=robeep_config['ssl'],
             verify_ssl=robeep_config['verify_ssl'],
         )
-
+        self._environment = robeep_config['environment']
+        if not self._environment:
+            raise ConfigurationError('environment is must be set.')
         self._hostname = robeep_config['hostname']
-        if self._hostname is None:
+        if not self._hostname:
             raise ConfigurationError('hostname is must be set.')
 
         atexit.register(self._atexit_shutdown)
@@ -120,25 +122,29 @@ class Agent(object):
                             continue
 
                         start_time = time.time()
-                        self._client.send_metrics(points=[
-                            {
-                                'measurement': data_source.name,
-                                'time': d['time'],
-                                'fields': _make_fields(d['record']),
-                            } for d in record_data
-                        ], tags=self._make_tags())
+                        prefix = "%s.hosts.%s.types.%s.%s" % (self._environment,
+                                                              self._hostname,
+                                                              data_source.type,
+                                                              data_source.name)
+                        points = []
+                        for r in record_data:
+                            for key, value in r['record'].iteritems():
+                                points.append({
+                                    'measurement': "%s.%s" % (prefix, key),
+                                    'time': r['time'],
+                                    'fields': {'value': value}
+                                })
+                        self._client.send_metrics(
+                            points=points, tags={
+                                'hostname': self._hostname,
+                                'type': data_source.type,
+                                'name': data_source.name
+                            })
                         elapsed_time = time.time() - start_time
                         _logger.debug('send %s took %f ms' % (
                                       data_source.name, elapsed_time*1000))
         except Exception as e:
             _logger.exception('Unexpected exception in collector loop %r' % e)
-
-    def _make_tags(self):
-        return {'host': self._hostname}
-
-
-def _make_fields(data):
-    return {"value_%s" % key: value for key, value in data.iteritems()}
 
 
 def get_instance():

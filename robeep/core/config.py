@@ -21,6 +21,7 @@ _config.robeep['database'] = 'robeep'
 _config.robeep['ssl'] = False
 _config.robeep['verify_ssl'] = False
 _config.robeep['timeout'] = 30.0
+_config.robeep['environment'] = 'product'
 
 
 def global_config():

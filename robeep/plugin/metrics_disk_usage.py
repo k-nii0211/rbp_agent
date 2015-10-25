@@ -1,7 +1,7 @@
 from robeep.packages import psutil
 
 
-class DiskUsageMetrics(object):
+class MetricsDiskUsage(object):
     def __init__(self, ignore_list=list()):
         self._ignore_list = ignore_list
 
@@ -23,4 +23,4 @@ class DiskUsageMetrics(object):
         }
 
 
-disk_usage_metrics = DiskUsageMetrics
+metrics_disk_usage = MetricsDiskUsage

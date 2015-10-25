@@ -1,7 +1,7 @@
 from robeep.packages import psutil
 
 
-class MemoryUsage(object):
+class MetricsMemoryUsage(object):
     def __call__(self):
         mem = psutil.virtual_memory()
 
@@ -14,4 +14,4 @@ class MemoryUsage(object):
             'free': mem.free,
         }
 
-memory_usage = MemoryUsage
+metrics_memory_usage = MetricsMemoryUsage
