@@ -7,13 +7,30 @@ try:
 except ImportError, e:
     ALProxy = None
 
-_keys = {
-    "Head": "Device/SubDeviceList/Head/Temperature/Sensor/Value",
-    "Battery": "Device/SubDeviceList/Battery/Temperature/Sensor/Value",
-    "HeadYaw": "Device/SubDeviceList/HeadYaw/Temperature/Sensor/Value",
-    "HeadPitch": "Device/SubDeviceList/HeadPitch/Temperature/Sensor/Value",
-    "LElbowYaw": "Device/SubDeviceList/LElbowYaw/Temperature/Sensor/Value",
-}
+_keys = [
+    "Head",
+    "Battery",
+    "HeadYaw",
+    "HeadPitch",
+    "LElbowYaw",
+    "LElbowRoll",
+    "RElbowYaw",
+    "RElbowRoll",
+    "LHand",
+    "LWristYaw",
+    "RHand",
+    "RWristYaw",
+    "LShoulderPitch",
+    "LShoulderRoll",
+    "RShoulderPitch",
+    "RShoulderRoll",
+    "HipRoll",
+    "HipPitch",
+    "KneePitch",
+    "WheelFL",
+    "WheelFR",
+    "WheelB"
+]
 
 
 class MetricsDeviceTemperature(object):
@@ -25,7 +42,9 @@ class MetricsDeviceTemperature(object):
         memProxy = ALProxy("ALMemory", "localhost", 9559)
         ret = dict()
         for key in _keys:
-            ret[key] = memProxy.getData(key)
+            ret[key] = memProxy.getData(
+                "Device/SubDeviceList/%s/Temperature/Sensor/Value" % key
+            )
         return ret
 
 metrics_device_temperature = MetricsDeviceTemperature
