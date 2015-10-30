@@ -67,6 +67,10 @@ class DataCollector(object):
 
         self._start_timer(interval)
 
+        if values is None:
+            _logger.warn('evaluate result should not be null.')
+            return
+
         record_data = {
             'time': now,
             'record': values,
