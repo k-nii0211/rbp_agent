@@ -33,7 +33,7 @@ _keys = [
 ]
 
 
-class MetricsDeviceTemperature(object):
+class CheckDeviceTemperature(object):
     def __call__(self):
         if ALProxy is None:
             _logger.warn('ALProxy is None.')
@@ -43,8 +43,8 @@ class MetricsDeviceTemperature(object):
         ret = dict()
         for key in _keys:
             ret[key] = memProxy.getData(
-                "Device/SubDeviceList/%s/Temperature/Sensor/Value" % key
+                "Device/SubDeviceList/%s/Temperature/Sensor/Status" % key
             )
         return ret
 
-metrics_device_temperature = MetricsDeviceTemperature
+check_device_temperature = CheckDeviceTemperature
