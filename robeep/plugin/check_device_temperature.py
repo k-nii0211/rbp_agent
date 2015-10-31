@@ -42,9 +42,13 @@ class CheckDeviceTemperature(object):
         memProxy = ALProxy("ALMemory", "localhost", 9559)
         ret = dict()
         for key in _keys:
-            ret[key] = memProxy.getData(
+            value = memProxy.getData(
                 "Device/SubDeviceList/%s/Temperature/Sensor/Status" % key
             )
+            if not value:
+                _logger.warn('Noting return value %s' % key)
+                continue
+            ret[key] = value
         return ret
 
 check_device_temperature = CheckDeviceTemperature

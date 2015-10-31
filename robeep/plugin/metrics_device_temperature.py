@@ -42,9 +42,12 @@ class MetricsDeviceTemperature(object):
         memProxy = ALProxy("ALMemory", "localhost", 9559)
         ret = dict()
         for key in _keys:
-            ret[key] = memProxy.getData(
-                "Device/SubDeviceList/%s/Temperature/Sensor/Value" % key
-            )
+            value = memProxy.getData(
+                "Device/SubDeviceList/%s/Temperature/Sensor/Value" % key)
+            ret[key] = value
+            if not value:
+                _logger.warn('Noting return value %s' % key)
+                continue
         return ret
 
 metrics_device_temperature = MetricsDeviceTemperature
