@@ -17,7 +17,8 @@ class Daemon(object):
     @staticmethod
     def _get_pidfile():
         app = sys.argv[0].split('/')[-1]
-        for pidfile in ['%s/%s.pid' % (os.getcwd(), app),
+        for pidfile in ['/var/run/naoqi/%s.pid' % app,
+                        '%s/%s.pid' % (os.getcwd(), app),
                         '/var/run/%s.pid' % app,
                         '/tmp/%s.pid' % app]:
             if os.access(os.path.dirname(pidfile), os.W_OK):
@@ -26,44 +27,46 @@ class Daemon(object):
 
     def __init__(self):
         self.pidfile = Daemon._get_pidfile()
+        default_path = os.path.join(
+            os.path.dirname(__file__), '../robeep_agent.ini')
         _settings.initialize(
-            os.environ.get('ROBEEP_AGENT_CONFIG_FILE', None))
+            os.environ.get('ROBEEP_AGENT_CONFIG_FILE', default_path))
 
-    def _daemonize(self):
-        try:
-            pid = os.fork()
-            if pid > 0:
-                sys.exit(0)
-        except OSError as e:
-            _logger.exception('Failed to fork %r' % e)
-            sys.exit(1)
-
-        os.chdir('/')
-        os.setsid()
-        os.umask(0)
-
-        try:
-            pid = os.fork()
-            if pid > 0:
-                sys.exit(0)
-        except OSError as e:
-            _logger.exception('Failed to fork %r' % e)
-            sys.exit(1)
-
-        sys.stdout.flush()
-        sys.stderr.flush()
-        si = open(os.devnull, 'r')
-        so = open(os.devnull, 'a+')
-        se = open(os.devnull, 'a+')
-
-        os.dup2(si.fileno(), sys.stdin.fileno())
-        os.dup2(so.fileno(), sys.stdout.fileno())
-        os.dup2(se.fileno(), sys.stderr.fileno())
-
-        atexit.register(self._delete_pid)
-
-        with open(self.pidfile, 'w+') as f:
-            f.write(str(os.getpid()))
+    # def _daemonize(self):
+    #     try:
+    #         pid = os.fork()
+    #         if pid > 0:
+    #             sys.exit(0)
+    #     except OSError as e:
+    #         _logger.exception('Failed to fork %r' % e)
+    #         sys.exit(1)
+    #
+    #     os.chdir('/')
+    #     os.setsid()
+    #     os.umask(0)
+    #
+    #     try:
+    #         pid = os.fork()
+    #         if pid > 0:
+    #             sys.exit(0)
+    #     except OSError as e:
+    #         _logger.exception('Failed to fork %r' % e)
+    #         sys.exit(1)
+    #
+    #     sys.stdout.flush()
+    #     sys.stderr.flush()
+    #     si = open(os.devnull, 'r')
+    #     so = open(os.devnull, 'a+')
+    #     se = open(os.devnull, 'a+')
+    #
+    #     os.dup2(si.fileno(), sys.stdin.fileno())
+    #     os.dup2(so.fileno(), sys.stdout.fileno())
+    #     os.dup2(se.fileno(), sys.stderr.fileno())
+    #
+    #     atexit.register(self._delete_pid)
+    #
+    #     with open(self.pidfile, 'w+') as f:
+    #         f.write(str(os.getpid()))
 
     def _delete_pid(self):
         os.remove(self.pidfile)
@@ -81,7 +84,11 @@ class Daemon(object):
                           ' Daemon already running?' % self.pidfile)
             sys.exit(1)
 
-        self._daemonize()
+        atexit.register(self._delete_pid)
+        with open(self.pidfile, 'w+') as f:
+            f.write(str(os.getpid()))
+
+        # self._daemonize()
         _settings.setup_data_source()
         _agent.activate()
 
